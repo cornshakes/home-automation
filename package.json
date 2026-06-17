@@ -9,7 +9,8 @@
   "scripts": {
     "coders": "node scripts/run_coders.ts",
     "review": "node scripts/run_review.ts",
-    "tasker": "node scripts/run_tasker.ts"
+    "tasker": "node scripts/run_tasker.ts",
+    "full-auto": "node scripts/full-auto.ts"
   },
   "dependencies": {
     "@types/node": "^25.9.3",

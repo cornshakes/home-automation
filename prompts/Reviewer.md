@@ -20,8 +20,8 @@ End your reply with a line in exactly this form (and nothing after it):
 - If the review is done but no approval
     <Review disapprove>
 - If an error / something unexpected happens:
-    <Review error> <max 20 words>
+    <Review error>
 - If you require anything else to complete the review with confidence and good quality:
-    <Review need> <max 20 words>
+    <Review need>
 
 

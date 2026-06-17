@@ -20,7 +20,7 @@ export const run_coders = async (cwd: string): Promise<CodersResult> => {
     const frontier = toc.findIndex((entry) => !entry.checked);
 
     if (frontier === -1) {
-      return { status: "all_done", message: "All tasks complete.", results };
+      return { status: "success", message: "All tasks complete.", results };
     }
 
     const tag = toc[frontier].tag;
@@ -66,7 +66,12 @@ export const run_coder = async (model: CoderModel, cwd: string) => {
     cwd,
     model,
     effort: "medium",
-    allowed_tools: ["Write(**/*)", "Edit(**/*)", "Read(**/*)"],
+    allowed_tools: [
+      "Write(**/*)",
+      "Edit(**/*)",
+      "Read(**/*)",
+      "Bash(npm run lint-fix)",
+    ],
   });
 };
 
@@ -77,7 +82,7 @@ type TocEntry = { checked: boolean; tag: Tag };
 
 export type CodersResult = {
   /** how the orchestration ended */
-  status: "all_done" | "needs_other" | "coder_error" | "coder_need" | "error";
+  status: "success" | "needs_other" | "coder_error" | "coder_need" | "error";
   /** a human-readable explanation of the outcome */
   message: string;
   /** A list of all single coder run results */

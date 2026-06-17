@@ -15,10 +15,10 @@ Don't make any commits.
 End your reply with a line in exactly this form (and nothing after it):
 
 - If there are no unchecked tasks tagged [$TAG] left anywhere:
-    <$TAG all_done>
+    <Coder all_done>
 - If unchecked [$TAG] tasks remain but the next unchecked task is tagged for someone else (blocked for you):
-    <$TAG more_later>
+    <Coder more_later>
 - If an error / something unexpected happens:
-    <$TAG error> <max 8 words>
+    <Coder error>
 - If you require anything else (e.g. tool access, more info) to complete a task with confidence and good quality:
-    <$TAG need> <max 8 words>
+    <Coder need>

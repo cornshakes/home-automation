@@ -11,4 +11,12 @@ tag [sonnet] means: This task needs sonnet.
 tag [other] means: This task needs more than sonnet or haiku.
 
 Prefer more tasks that can run on lower models; the lower the better.
-Don't add tasks for running typechecks, tests etc.
+Add one final task to run npm lint-fix.
+
+**IMPORTANT!**
+End your reply with a line in exactly this form (and nothing after it):
+
+- If the tasks have been successfully created
+    <Tasker success>
+- If the tasks could not be created
+    <Tasker error>
