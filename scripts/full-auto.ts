@@ -38,9 +38,7 @@ const maybe_run_coders = async () => {
     if (coders_result.status !== "success") {
       throw new Error("coders success expected");
     }
-    return true;
   }
-  return false;
 };
 
 const maybe_run_review_tasker = async () => {

@@ -71,7 +71,7 @@ export const run_coder = async (model: "haiku" | "sonnet", cwd: string) => {
     prompt: coder_prompt(model),
     cwd,
     model,
-    effort: "medium",
+    effort: model === "haiku" ? "medium" : "high",
     allowed_tools: [
       "Write(**/*)",
       "Edit(**/*)",
