@@ -64,7 +64,7 @@ const maybe_run_reviewer = async () => {
     const reviewer_result = await run_reviewer(cwd);
     console.log(reviewer_result);
     if (
-      reviewer_result.stdout.trimEnd().endsWith("<Review disapprove>") &&
+      reviewer_result.stdout.trimEnd().endsWith("<Review disapprove>") ||
       reviewer_result.stdout.trimEnd().endsWith("<Review approve>")
     ) {
       create_commit();
