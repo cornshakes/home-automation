@@ -1,23 +1,34 @@
 import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { project_cwd } from "../scripts/lib/read_cwd";
+
+/**
+ * Executes a shell command and returns the output
+ */
+export const xcexc = (command: string) => {
+  return execSync(command, {
+    cwd: project_cwd(),
+    encoding: "utf-8",
+  });
+};
 
 /**
  * Finds uncommitted files and filters them by name.includes(include_filter)
  */
 
-export const find_uncommited_files = (include_filter: string, cwd: string) => {
-  return execSync("git status --porcelain", {
-    cwd,
-    encoding: "utf-8",
-  })
+export const find_uncommited_files = (include_filter: string) => {
+  return xcexc("git status --porcelain")
     .split("\n")
     .filter((line) => line.includes(include_filter))
     .map((line) => line.substring(3));
 };
 
-export const find_review_verdicts = (cwd: string) => {
-  return find_uncommited_files("review-", cwd)
+/**
+ * returns a list containing only the final verdicts of each review e.g. ["Disapprove", "Approve"]
+ */
+export const find_review_verdicts = () => {
+  return find_uncommited_files("review-")
     .map((path) => readFileSync(path, "utf-8").split("\n")[0])
     .sort()
     .map((line) => line.match(/^# Review (\d): (Approve|Disapprove)\s*$/))
@@ -40,23 +51,22 @@ export const find_review_verdicts = (cwd: string) => {
  */
 export const find_uncommitted = (
   file: "plan.md" | "tasks.md",
-  cwd: string,
 ): string | null => {
-  const files = find_uncommited_files(file, cwd);
+  const files = find_uncommited_files(file);
   if (files.length === 0) {
     return null;
   }
   if (files.length !== 1) {
     throw new Error(`Confused! More than 1 possible ${file}`);
   }
-  return join(cwd, files[0]);
+  return join(project_cwd(), files[0]);
 };
 
 /**
  * Returns the number of review sections in the toc of a tasks.md
  */
-export const count_review_sections = (cwd: string) => {
-  const tasks_md_path = find_uncommitted("tasks.md", cwd)!;
+export const count_review_sections = () => {
+  const tasks_md_path = find_uncommitted("tasks.md")!;
   return readFileSync(tasks_md_path, "utf-8")
     .split("\n")
     .map((line) => line.match(/^Review (\d)\s*$/))
@@ -66,8 +76,8 @@ export const count_review_sections = (cwd: string) => {
 /**
  * Returns the tasks in the toc of a tasks.md
  */
-export const parse_tasks = (cwd: string) => {
-  const tasks_md_path = find_uncommitted("tasks.md", cwd);
+export const parse_tasks = () => {
+  const tasks_md_path = find_uncommitted("tasks.md");
   if (!tasks_md_path) {
     throw new Error("No uncommited tasks.md file found!");
   }

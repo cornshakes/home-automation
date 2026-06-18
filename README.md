@@ -22,7 +22,7 @@ You can also do all that automatically until either an error or an approving rev
 
 - `npm run full-auto $cwd`
 
-The idea is: all the claudes work without interaction. Whenever they can't continue for some reason, that reason is communicated to me and everything stops. I can then go and fix it, then run full-auto again and it picks up exactly where it left off ie it doens't have to redo significant amounts of work. After every review, a new commit is created with the message <branchname>-<review-%n>.
+The idea is: all the claudes work without interaction. Whenever they can't continue for some reason, that reason is communicated to me and everything stops. I can then go and fix it, then run full-auto again and it picks up exactly where it left off ie it doens't have to redo significant amounts of work.
 
 This will probably not end in a perfect end state, but it works quite well for me to get larger plans
 
