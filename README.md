@@ -7,8 +7,7 @@ The name "Home Automation" is what it is all about - I don't want to run skynet 
 The tasker looks for a "newly added plan", specifically I need a non-commited plan.md file.
 
 # Be Careful!
-Watch the scripts, watch their output, watch your usage, watch all your files. These scripts will happily
-
+Watch the scripts, watch their output, watch your git history, watch your usage, watch all your files. These scripts will happily
 - eat all your tokens
 - delete all your files
 - commit your home dir to a public repository
@@ -22,6 +21,8 @@ There are 3 scripts that can be run in cycles until an approving review is reach
 You can also do all that automatically until either an error or an approving review is reached. *Be careful*
 
 - `npm run full-auto $cwd`
+
+The idea is: all the claudes work without interaction. Whenever they can't continue for some reason, that reason is communicated to me and everything stops. I can then go and fix it, then run full-auto again and it picks up exactly where it left off ie it doens't have to redo significant amounts of work. After every review, a new commit is created with the message <branchname>-<review-%n>.
 
 This will probably not end in a perfect end state, but it works quite well for me to get larger plans
 

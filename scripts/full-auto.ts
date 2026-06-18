@@ -9,11 +9,26 @@ import {
   parse_tasks,
 } from "../src/uncommited_files.ts";
 import { project_cwd } from "./lib/read_cwd.ts";
+import { execSync } from "child_process";
 
 const cwd = project_cwd();
 
 const has_todo_tasks = () => {
   return parse_tasks(cwd).find((t) => !t.done);
+};
+
+const xcexc = (command: string) => {
+  return execSync("git status --porcelain", {
+    cwd,
+    encoding: "utf-8",
+  });
+};
+
+const create_commit = () => {
+  const branch_name = xcexc("git branch --show-current");
+  const review_count = find_review_verdicts(cwd).length;
+  xcexc(`git add .`);
+  xcexc(`git commit -m "${branch_name}-review-${review_count}"`);
 };
 
 const maybe_run_coders = async () => {
@@ -51,9 +66,11 @@ const maybe_run_reviewer = async () => {
     const reviewer_result = await run_reviewer(cwd);
     console.log(reviewer_result);
     if (
-      !reviewer_result.stdout.trimEnd().endsWith("<Review disapprove>") &&
-      !reviewer_result.stdout.trimEnd().endsWith("<Review approve>")
+      reviewer_result.stdout.trimEnd().endsWith("<Review disapprove>") &&
+      reviewer_result.stdout.trimEnd().endsWith("<Review approve>")
     ) {
+      create_commit();
+    } else {
       throw new Error("review disapprove/approve expected");
     }
   }
