@@ -1,64 +1,70 @@
 import { readFileSync } from "node:fs";
 import { run_claude, type RunClaudeResult } from "./run_claude.ts";
-import { execFileSync } from "node:child_process";
-import { join } from "node:path";
+import { find_uncommitted } from "./uncommited_files.ts";
 
-/**
- * Orchestrates coders against the active tasks.md.
- *
- * Reads the first unchecked task, spawns a single coder of the matching model
- * (which works through all consecutive tasks for its tag), then repeats until
- * every task is checked off. Coders themselves never wait or poll; all
- * sequencing lives here.
- */
+export type CodersResult = {
+  /** how the run ended */
+  status: /** all tasks completed */
+    | "success"
+    /** a task is tagged [other], there's no coder for that */
+    | "needs_other"
+    /** a coder needs something to be able to complete its task */
+    | "coder_need"
+    /** there was an unexpected error */
+    | "error";
+  /** a more descriptive message */
+  message: string;
+  /** A list of all single coder run results */
+  results: RunClaudeResult[];
+};
 
 export const run_coders = async (cwd: string): Promise<CodersResult> => {
-  const tasks_path = find_tasks_file(cwd);
   const results: RunClaudeResult[] = [];
   while (true) {
-    const toc = parse_toc(readFileSync(tasks_path, "utf-8"));
-    const frontier = toc.findIndex((entry) => !entry.checked);
-
-    if (frontier === -1) {
-      return { status: "success", message: "All tasks complete.", results };
+    const tasks = parse_tasks(cwd);
+    const task = tasks.find((t) => !t.done);
+    if (!task) {
+      return { status: "success", message: "All tasks done", results };
     }
-
-    const tag = toc[frontier].tag;
-    if (tag === "other") {
+    if (task.tag === "other") {
       return {
         status: "needs_other",
-        message:
-          "Next task is tagged [other] (needs more than sonnet). Stopping for human handling.",
+        message: "The next task is tasked 'other'. What should be done?",
         results,
       };
     }
 
-    const result = await run_coder(tag, cwd);
-    console.log(result);
+    const result = await run_coder(task.tag, cwd);
     results.push(result);
-    const status = parse_coder_status(result.stdout, tag);
 
-    if (status === "error" || status === "need") {
-      return {
-        status: status === "error" ? "coder_error" : "coder_need",
-        message: `${tag} coder ended with <${tag} ${status}>; stopping.`,
-        results,
-      };
-    }
-
-    const after = parse_toc(readFileSync(tasks_path, "utf-8"));
-    const new_frontier = after.findIndex((entry) => !entry.checked);
-    if (new_frontier !== -1 && new_frontier <= frontier) {
+    if (result.stdout.trimEnd().endsWith("error>")) {
       return {
         status: "error",
-        message: `Coder made no progress on tasks.md (stuck at task ${frontier + 1}).`,
+        message: "An unexpected error happened while running a coder",
+        results,
+      };
+    }
+    if (result.stdout.trimEnd().endsWith("need>")) {
+      return {
+        status: "coder_need",
+        message: "A coder can't complete its task",
+        results,
+      };
+    }
+
+    const after = parse_tasks(cwd);
+    const next_task = after.find((t) => !t.done);
+    if (task.index === next_task?.index) {
+      return {
+        status: "error",
+        message: "The Coder made no progress on its tasks",
         results,
       };
     }
   }
 };
 
-export const run_coder = async (model: CoderModel, cwd: string) => {
+export const run_coder = async (model: "haiku" | "sonnet", cwd: string) => {
   const title = `${model[0].toUpperCase()}${model.slice(1)} Medium Coder`;
   return await run_claude({
     title,
@@ -70,70 +76,34 @@ export const run_coder = async (model: CoderModel, cwd: string) => {
       "Write(**/*)",
       "Edit(**/*)",
       "Read(**/*)",
-      "Bash(npm run lint-fix)",
+      "Bash(npm run check-fix)",
+      "Bash(npm run test:*)",
     ],
   });
 };
 
-type Tag = "haiku" | "sonnet" | "other";
-export type CoderModel = "haiku" | "sonnet";
+const parse_tasks = (cwd: string) => {
+  const tasks_md_path = find_uncommitted("tasks.md", cwd);
+  if (!tasks_md_path) {
+    throw new Error("No uncommited tasks.md file found!");
+  }
 
-type TocEntry = { checked: boolean; tag: Tag };
+  const tasks = readFileSync(tasks_md_path, "utf-8")
+    .split("\n")
+    .map((line) => line.match(/^- \[( |x)\].*\[(haiku|sonnet|other)\]\s*$/))
+    .filter((match) => !!match)
+    .map((match, index) => ({
+      index,
+      done: match[1] === "x",
+      tag: match[2] as "haiku" | "sonnet" | "other",
+    }));
 
-export type CodersResult = {
-  /** how the orchestration ended */
-  status: "success" | "needs_other" | "coder_error" | "coder_need" | "error";
-  /** a human-readable explanation of the outcome */
-  message: string;
-  /** A list of all single coder run results */
-  results: RunClaudeResult[];
+  if (tasks.length === 0) {
+    throw new Error("No tasks could be parsed from tasks.md!");
+  }
+  return tasks;
 };
 
-/** Locates the active tasks.md as the newly-added/modified plan/*\/tasks.md in git. */
-export const find_tasks_file = (cwd: string): string => {
-  const output = execFileSync("git", ["status", "--porcelain"], {
-    cwd,
-    encoding: "utf-8",
-  });
-
-  const matches = output.split("\n").filter((path) => /tasks\.md$/.test(path));
-  if (matches.length === 0) {
-    throw new Error("No git-dirty tasks.md found");
-  }
-  if (matches.length !== 1) {
-    throw new Error("Confused! More than 1 possible tasks.md");
-  }
-  return join(cwd, matches[0].substring(3));
-};
-
-/** Parses TOC checkbox lines like `- [ ] 4. ... [sonnet]` into entries. */
-export const parse_toc = (tasks_md: string): TocEntry[] => {
-  const entries: TocEntry[] = [];
-  for (const line of tasks_md.split("\n")) {
-    const match = line.match(/^- \[( |x)\].*\[(haiku|sonnet|other)\]\s*$/);
-    if (match) {
-      entries.push({ checked: match[1] === "x", tag: match[2] as Tag });
-    }
-  }
-  return entries;
-};
-
-/** Reads the coder's trailing `<$TAG status>` line from its stdout. */
-export const parse_coder_status = (stdout: string, tag: Tag) => {
-  const match = stdout.match(
-    new RegExp(`<${tag} (all_done|more_later|error|need)>`, "g"),
-  );
-  if (!match || match.length === 0) {
-    return "error" as const;
-  }
-  const last = match[match.length - 1];
-  return last.slice(tag.length + 2, -1) as
-    | "all_done"
-    | "more_later"
-    | "error"
-    | "need";
-};
-
-export const coder_prompt = (tag: string) => {
+const coder_prompt = (tag: string) => {
   return readFileSync("./prompts/Coder.md", "utf-8").replaceAll("$TAG", tag);
 };

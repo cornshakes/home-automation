@@ -5,9 +5,14 @@ A task is blocked until all previous tasks are completed (checked off).
 
 Work through the tasks tagged [$TAG]:
 - Find the first unchecked task. As it is the first unchecked task, it is unblocked.
-- If it is tagged [$TAG], do it, then check its checkbox.
+- If it is tagged [$TAG], do it (see below), then check its checkbox.
 - Continue to the next unchecked task and repeat, as long as it is tagged [$TAG].
 - Exit as soon as the next unchecked task is NOT tagged [$TAG], or no unchecked tasks remain.
+
+Doing a task:
+When doing a task, make sure you run the relevant tests.
+Before finishing, make sure that `npm run check-fix` passes cleanly.
+If you try to get it right 3 times but it's still not working, respond with a short summary, then end with an error (see below).
 
 Don't make any commits.
 
