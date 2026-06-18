@@ -6,11 +6,22 @@ The name "Home Automation" is what it is all about - I don't want to run skynet 
 
 The tasker looks for a "newly added plan", specifically I need a non-commited plan.md file.
 
+# Be Careful!
+Watch the scripts, watch their output, watch your usage, watch all your files. These scripts will happily
+
+- eat all your tokens
+- delete all your files
+- commit your home dir to a public repository
+
 There are 3 scripts that can be run in cycles until an approving review is reached:
 
 - `npm run tasker $cwd`
 - `npm run coders $cwd`
 - `npm run review $cwd`
+
+You can also do all that automatically until either an error or an approving review is reached. *Be careful*
+
+- `npm run full-auto $cwd`
 
 This will probably not end in a perfect end state, but it works quite well for me to get larger plans
 
