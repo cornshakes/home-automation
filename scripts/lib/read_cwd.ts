@@ -1,6 +1,12 @@
 import { existsSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
+/**
+ * Reads the cwd from the first command line argument.
+ * It can be given as an absolute or relative path.
+ *
+ * @returns the absolute path for the cwd
+ */
 export const project_cwd = () => {
   const cwd_arg = process.argv[2];
   if (!cwd_arg) {

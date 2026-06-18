@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { run_claude, type RunClaudeResult } from "./run_claude.ts";
-import { find_uncommitted } from "./uncommited_files.ts";
+import { find_uncommitted, parse_tasks } from "./uncommited_files.ts";
 
 export type CodersResult = {
   /** how the run ended */
@@ -77,31 +77,12 @@ export const run_coder = async (model: "haiku" | "sonnet", cwd: string) => {
       "Edit(**/*)",
       "Read(**/*)",
       "Bash(npm run check-fix)",
-      "Bash(npm run test:*)",
+      "Bash(npm test)",
+      "Bash(npm run test)",
+      "Bash(npm run test:e2e)",
+      "Bash(npm run test:e2e:update)",
     ],
   });
-};
-
-const parse_tasks = (cwd: string) => {
-  const tasks_md_path = find_uncommitted("tasks.md", cwd);
-  if (!tasks_md_path) {
-    throw new Error("No uncommited tasks.md file found!");
-  }
-
-  const tasks = readFileSync(tasks_md_path, "utf-8")
-    .split("\n")
-    .map((line) => line.match(/^- \[( |x)\].*\[(haiku|sonnet|other)\]\s*$/))
-    .filter((match) => !!match)
-    .map((match, index) => ({
-      index,
-      done: match[1] === "x",
-      tag: match[2] as "haiku" | "sonnet" | "other",
-    }));
-
-  if (tasks.length === 0) {
-    throw new Error("No tasks could be parsed from tasks.md!");
-  }
-  return tasks;
 };
 
 const coder_prompt = (tag: string) => {

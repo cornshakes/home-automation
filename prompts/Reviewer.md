@@ -11,6 +11,8 @@ Only once you have all the tool access that is required, begin the review and wr
 - Run checks, linting, unit tests, e2e tests etc.
 
 Do not make any edits! Review only.
+The file begins with a line in this format:
+`# Review %n: $verdict` where $verdict is either `Approve` or `Disapprove`.
 
 **IMPORTANT!**
 End your reply with a line in exactly this form (and nothing after it):

@@ -4,13 +4,14 @@ The tasks.md file contains tasks sorted by implementation order.
 It begins with a short toc of tasks on top followed by more in depth descriptions for each task below.
 
 Create tasks for the latest review and append them in a new section in tasks.md.
+The new toc section for the review begins with one line in the format `Review %n`
 
-Each toc entry is one line with 
+Each toc task entry is one line with 
 - a checkbox (that coders can tick off one by one)
 - the task title
 - a tag either [haiku], [sonnet] or [other]
 
-Example for a tasks.md toc entry: `- [ ] 4. create stuff [sonnet]`
+Example for a tasks.md toc task entry: `- [ ] 4. create stuff [sonnet]`
 
 tag [haiku] means: This task can be solved by haiku.
 tag [sonnet] means: This task needs sonnet.
