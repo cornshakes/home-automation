@@ -12,8 +12,10 @@ export const run_reviewer = async (cwd: string) => {
       "Write(**/*)",
       "Edit(**/*)",
       "Read(**/*)",
-      "Bash(npm run check-fix)",
-      "Bash(npm run test:*)",
+      "Bash(npm run check)",
+      "Bash(npm test)",
+      "Bash(npm run test)",
+      "Bash(npm run test:e2e)",
     ],
   });
 };
