@@ -1,6 +1,11 @@
 import { readFileSync } from "node:fs";
-import { run_claude, type RunClaudeResult } from "./run_claude.ts";
+import {
+  run_claude,
+  type RunClaudeResult,
+  type RunClaudeSettings,
+} from "./run_claude.ts";
 import { find_uncommitted, parse_tasks } from "./uncommited_files.ts";
+import { project_cwd } from "../scripts/lib/read_cwd.ts";
 
 export type CodersResult = {
   /** how the run ended */
@@ -18,10 +23,10 @@ export type CodersResult = {
   results: RunClaudeResult[];
 };
 
-export const run_coders = async (cwd: string): Promise<CodersResult> => {
+export const run_coders = async (): Promise<CodersResult> => {
   const results: RunClaudeResult[] = [];
   while (true) {
-    const tasks = parse_tasks(cwd);
+    const tasks = parse_tasks();
     const task = tasks.find((t) => !t.done);
     if (!task) {
       return { status: "success", message: "All tasks done", results };
@@ -34,7 +39,7 @@ export const run_coders = async (cwd: string): Promise<CodersResult> => {
       };
     }
 
-    const result = await run_coder(task.tag, cwd);
+    const result = await run_coder(coder_settings[task.tag]);
     results.push(result);
 
     if (result.stdout.trimEnd().endsWith("error>")) {
@@ -52,7 +57,7 @@ export const run_coders = async (cwd: string): Promise<CodersResult> => {
       };
     }
 
-    const after = parse_tasks(cwd);
+    const after = parse_tasks();
     const next_task = after.find((t) => !t.done);
     if (task.index === next_task?.index) {
       return {
@@ -64,14 +69,31 @@ export const run_coders = async (cwd: string): Promise<CodersResult> => {
   }
 };
 
-export const run_coder = async (model: "haiku" | "sonnet", cwd: string) => {
-  const title = `${model[0].toUpperCase()}${model.slice(1)} Medium Coder`;
+export type RunCoderSettings = Pick<
+  RunClaudeSettings,
+  "title" | "model" | "effort"
+>;
+
+const coder_settings: { [key: string]: RunCoderSettings } = {
+  haiku: {
+    title: "Haiku Coder",
+    model: "haiku",
+    effort: "medium",
+  },
+  sonnet: {
+    title: "Sonnet Coder",
+    model: "sonnet",
+    effort: "high",
+  },
+};
+
+export const run_coder = async ({ title, model, effort }: RunCoderSettings) => {
   return await run_claude({
     title,
     prompt: coder_prompt(model),
-    cwd,
+    cwd: project_cwd(),
     model,
-    effort: model === "haiku" ? "medium" : "high",
+    effort,
     allowed_tools: [
       "Write(**/*)",
       "Edit(**/*)",

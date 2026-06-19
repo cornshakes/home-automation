@@ -16,10 +16,12 @@ Use only these npm scripts to check/lint:
 - test:e2e
 
 Don't make any commits.
-
 Do not make any edits! Review only.
-The file begins with a line in this format:
+
+**IMPORTANT!**
+The FIRST LINE in the review file must be in *exactly* this format:
 `# Review %n: $verdict` where $verdict is either `Approve` or `Disapprove`.
+DO NOT put anything else before this first line.
 
 **IMPORTANT!**
 End your reply with a line in exactly this form (and nothing after it):

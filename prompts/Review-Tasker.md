@@ -4,7 +4,9 @@ The tasks.md file contains tasks sorted by implementation order.
 It begins with a short toc of tasks on top followed by more in depth descriptions for each task below.
 
 Create tasks for the latest review and append them in a new section in tasks.md.
-The new toc section for the review begins with one line in the format `Review %n`
+
+**IMPORTANT!**
+The new toc section for the review begins with one line in *exactly* this format: `# Review %n`
 
 Each toc task entry is one line with 
 - a checkbox (that coders can tick off one by one)

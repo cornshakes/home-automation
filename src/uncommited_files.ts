@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { project_cwd } from "../scripts/lib/read_cwd";
+import { project_cwd } from "../scripts/lib/read_cwd.ts";
 
 /**
  * Executes a shell command and returns the output
@@ -29,6 +29,7 @@ export const find_uncommited_files = (include_filter: string) => {
  */
 export const find_review_verdicts = () => {
   return find_uncommited_files("review-")
+    .map((path) => join(project_cwd(), path))
     .map((path) => readFileSync(path, "utf-8").split("\n")[0])
     .sort()
     .map((line) => line.match(/^# Review (\d): (Approve|Disapprove)\s*$/))
@@ -36,13 +37,13 @@ export const find_review_verdicts = () => {
       if (match === null) {
         throw new Error("Found review with invalid header line!");
       }
-      const r_index = parseInt(match[0]);
+      const r_index = parseInt(match[1]);
       if (r_index !== index + 1) {
         throw new Error(
           `Review Number (${r_index}) does not match position (${index + 1}) in review files!`,
         );
       }
-      return match[1];
+      return match[2];
     });
 };
 
@@ -69,7 +70,7 @@ export const count_review_sections = () => {
   const tasks_md_path = find_uncommitted("tasks.md")!;
   return readFileSync(tasks_md_path, "utf-8")
     .split("\n")
-    .map((line) => line.match(/^Review (\d)\s*$/))
+    .map((line) => line.match(/^# Review (\d)\s*$/))
     .filter((match) => !!match).length;
 };
 

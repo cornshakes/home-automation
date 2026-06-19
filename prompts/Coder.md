@@ -4,19 +4,17 @@ The tasks have to be done sequentially from top to bottom.
 A task is blocked until all previous tasks are completed (checked off).
 
 Work through the tasks tagged [$TAG]:
-- Find the first unchecked task. As it is the first unchecked task, it is unblocked.
-- If it is tagged [$TAG], do it (see below).
-- Continue to the next unchecked task and repeat, as long as it is tagged [$TAG].
-- Exit as soon as the next unchecked task is NOT tagged [$TAG], or no unchecked tasks remain.
+- Find the first unblocked, unchecked task tagged [$TAG] and do it (see below).
+- Continue to the next unblocked, unchecked task tagged [$TAG] and repeat.
+- Exit when there are no more unchecked tasks or the next unchecked task tagged [$TAG] is blocked.
 
 Doing a task:
 When doing a task, make sure you run the relevant tests.
-Before finishing, make sure that `npm run check-fix` passes cleanly.
-After finishing, update the tasks.md file to put an x into the checkbox of the task that you just completed.
+Before finishing a task, make sure that `npm run check-fix` passes cleanly. Immediately after finishing a task, update the tasks.md file to put an x into the checkbox of the task that you just completed.
 If you try to get it right 3 times but it's still not working, respond with a short summary, then end with an error (see below).
 
 
-Use only these npm scripts to check/lint/fix:
+Use only these npm scripts to check/lint/fix (You have been given explicit permission to run them):
 - check-fix
 - test
 - test:e2e

@@ -12,7 +12,7 @@ import {
 import { project_cwd } from "./lib/read_cwd.ts";
 
 const has_todo_tasks = () => {
-  return parse_tasks().find((t) => !t.done);
+  return !!parse_tasks().find((t) => !t.done);
 };
 
 const create_commit = () => {
@@ -24,7 +24,7 @@ const create_commit = () => {
 
 const maybe_run_coders = async () => {
   if (has_todo_tasks()) {
-    const coders_result = await run_coders(project_cwd());
+    const coders_result = await run_coders();
     console.log(coders_result);
     if (coders_result.status !== "success") {
       throw new Error("coders success expected");
@@ -49,7 +49,6 @@ const maybe_run_review_tasker = async () => {
 
 const maybe_run_reviewer = async () => {
   const verdicts = find_review_verdicts();
-
   if (!has_todo_tasks() && count_review_sections() === verdicts.length) {
     // there are sections for every review so far and there are no more todo tasks left, run the reviewer
     const reviewer_result = await run_reviewer(project_cwd());
@@ -74,7 +73,8 @@ if (!plan_md) {
 
 const tasks_md = find_uncommitted("tasks.md");
 if (!tasks_md) {
-  await run_plan_tasker(project_cwd());
+  const tasker_result = await run_plan_tasker(project_cwd());
+  console.log(tasker_result);
 }
 
 for (let i = 0; i < 5; i++) {
