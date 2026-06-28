@@ -5,7 +5,7 @@ import { run_plan_tasker, run_review_tasker } from "../src/run_tasker.ts";
 import {
   count_review_sections,
   find_review_verdicts,
-  find_uncommitted,
+  find_uncommitted as find_git_tracked,
   parse_tasks,
   xcexc,
 } from "../src/uncommited_files.ts";
@@ -66,12 +66,14 @@ const maybe_run_reviewer = async () => {
   }
 };
 
-const plan_md = find_uncommitted("plan.md");
+const plan_md = find_git_tracked("plan.md");
 if (!plan_md) {
-  throw new Error("no plan.md file found in " + project_cwd());
+  throw new Error(
+    "no plan.md file found in " + project_cwd() + ". (It has to be staged)",
+  );
 }
 
-const tasks_md = find_uncommitted("tasks.md");
+const tasks_md = find_git_tracked("tasks.md");
 if (!tasks_md) {
   const tasker_result = await run_plan_tasker(project_cwd());
   console.log(tasker_result);
