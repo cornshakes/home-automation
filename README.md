@@ -1,3 +1,9 @@
+# Result
+
+Overall I see this as a failed experiment in that it only tries to do what claude already does much better internally.
+I again fell victim to the [Inner Platform Effect](https://en.wikipedia.org/wiki/Inner-platform_effect), trying to build claude in claude.
+I went overboard with my idea of keeping context small and being able to create trucks of code, even in parallel. Which makes no sense given that claude just made coding crazy fast anyway. I can barely deal with all the code. Something that I like is the well defined tool use without interaction, but I can also do that by using claude non-interactively on the command line, no need to build a whole project. Anyway, on with the project:
+
 # Home Automation
 
 This is a first stab at automating the prompts I've been using to make claude code work a plan in [Scrollsurf](https://github.com/cornshakes/scrollsurf). For the plan, I use a vscode claude plan mode session and then make it save the plan in the project dir once everything is worked out.
